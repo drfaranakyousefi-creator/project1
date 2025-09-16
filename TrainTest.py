@@ -19,7 +19,7 @@ class HTTPS(nn.Module) :
         chartevents_path = "/content/drive/MyDrive/split_learning/CHARTEVENTS.csv"
         df_chartevents = pd.read_csv(chartevents_path)
         self.data = data_preparing(df_chartevents , dataset_name , w , test_size = 0.2 )
-        print('the data shape is : {self.data.data.shape}') #debug
+        print(f'the data shape is : {self.data.data.shape}') #debug
         self.transmittion = Transmitter(server_url , device)
         self.batch_size = batch_size 
         self.loss_fn = nn.MSELoss()
@@ -86,6 +86,7 @@ class HTTPS(nn.Module) :
 
 
         
+
 
 
 
