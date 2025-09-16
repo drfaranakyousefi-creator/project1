@@ -62,7 +62,7 @@ class HTTPS(nn.Module) :
         number = 0 
         for x , l in self.data.load_test(batch_size = self.batch_size) :  
             l = l.to(self.device)
-            prediction_input   = self.network(x.to(self.device))
+            prediction_inp , _  , _    = self.network(x.to(self.device))
             prediction = self.transmittion.send_data(prediction_input , l , status='test')
             loss_test +=x.shape[0] * self.loss_fn(prediction.to(self.device) , l )
             number += x.shape[0]
@@ -81,6 +81,7 @@ class HTTPS(nn.Module) :
 
 
         
+
 
 
 
