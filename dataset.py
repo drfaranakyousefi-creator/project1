@@ -150,17 +150,16 @@ class data_preparing :
         print(f'the size of the total data is {self.data.shape}')
         self.test_size = test_size
     def load_test(self , batch_size ) : 
-        print('test the datset is loaded') #debug
         start = int((1-self.test_size)*self.label.shape[0])
         dataset = TensorDataset(self.data[start: ,: ,  : , : ] , self.label[start:])
         test_loader = DataLoader(dataset , batch_size=batch_size , shuffle= True)
         return test_loader
     def load_train(self , batch_size ) : 
-        print('train the datset is loaded')#debug
         end = int((1-self.test_size)*self.label.shape[0])
         dataset = TensorDataset(self.data[:end ,: ,  : , : ] , self.label[:end])
         train_loader = DataLoader(dataset , batch_size=batch_size , shuffle= True)
         return train_loader    
+
 
 
 
