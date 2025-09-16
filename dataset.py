@@ -145,8 +145,8 @@ class data_preparing :
     def __init__(self ,data_frame , dataset_name , w , test_size ) :     
         self.data , self.label = extract_data(dataset_name , data_frame , w )
         
-        self.data = self.data[:1000 , :, : , : ] #for code debuging
-        self.label = self.label[:1000] #for code debuging
+        self.data = self.data[:10 , :, : , : ] #for code debuging
+        self.label = self.label[:10] #for code debuging
         
         self.test_size = test_size
     def load_test(self , batch_size ) : 
@@ -159,5 +159,6 @@ class data_preparing :
         dataset = TensorDataset(self.data[:end ,: ,  : , : ] , self.label[:end])
         train_loader = DataLoader(dataset , batch_size=batch_size , shuffle= True)
         return train_loader    
+
 
 
