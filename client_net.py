@@ -96,10 +96,11 @@ class client_network(nn.Module):
         self.sparse_net = sparse(n_features_input)
         self.loss_fn = nn.MSELoss()
         self.optimizer = optim.Adam(self.parameters() , lr=lr)
-    def forward(self, x, train_decoder= True):
+    def forward(self, x, train_decoder= False):
         # x  : (batch , 2 , w , N)
         sparse_inp =x[: , 0 , : , :]
         dense_inp  =x[: , 1 , : , :]
+        print('hi')
         sparse_out = self.sparse_net(sparse_inp) #(B , w)
         dense_encoder_out , dennse_decoder_out = self.MultiAutoEncoder(dense_inp)
         prediction_inp = torch.concat([sparse_out,dense_encoder_out ] , dim=1) # (B , W + N)
@@ -110,3 +111,4 @@ class client_network(nn.Module):
         self.optimizer.zero_grad()
         prediction_inp.backward(grad)
         self.optimizer.step()
+
