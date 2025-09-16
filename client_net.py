@@ -104,7 +104,6 @@ class client_network(nn.Module):
     def train_one_batch(self, prediction_inp,dense_decoder_out  , dense_inp , grad ) :
         loss = self.loss_fn(dense_decoder_out,dense_inp ) 
         loss.backward(retain_graph= True)
-        this_result_should_be_deleted =prediction_inp.backward(grad )
-        print(this_result_should_be_deleted)
         self.optimizer.step()
         self.optimizer.zero_grad()
+
