@@ -43,7 +43,7 @@ class HTTPS(nn.Module) :
 
     def train_one_epoch(self) :
         for x , l in self.data.load_train(batch_size = self.batch_size) :  
-            prediction_inp , dense_decoder_out  , dense_inp  = self.network(x.to(self.device), train_decoder= True)
+            prediction_inp , dense_decoder_out  , dense_inp  = self.network(x.to(self.device))
             grad = self.transmittion.send_data(prediction_inp , l , status='train')
             self.network.train_one_batch(prediction_inp , dense_decoder_out  , dense_inp , grad.clone())
         return True
@@ -80,3 +80,4 @@ class HTTPS(nn.Module) :
 
 
         
+
