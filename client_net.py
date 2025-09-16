@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 torch.autograd.set_detect_anomaly(True)
-
+print('hello world')
 
 class encoder(nn.Module) : 
     def __init__(self , w ) : 
@@ -112,4 +112,5 @@ class client_network(nn.Module):
         prediction_inp.backward(grad)
         self.optimizer.step()
         self.optimizer.zero_grad()
+
 
