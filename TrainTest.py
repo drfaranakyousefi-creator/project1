@@ -19,7 +19,7 @@ class HTTPS(nn.Module) :
         chartevents_path = "/content/drive/MyDrive/split_learning/CHARTEVENTS.csv"
         df_chartevents = pd.read_csv(chartevents_path)
         self.data = data_preparing(df_chartevents , dataset_name , w , test_size = 0.2 )
-        print('the data shape is : {self.data.data.shape}')
+        print('the data shape is : {self.data.data.shape}') #debug
         self.transmittion = Transmitter(server_url , device)
         self.batch_size = batch_size 
         self.loss_fn = nn.MSELoss()
@@ -49,7 +49,7 @@ class HTTPS(nn.Module) :
             o +=1
             print(f'the class want to train one epoch ths is the{o}time ') #debug
             prediction_input   = self.network(x.to(self.device), train_decoder= False)
-            print(prediction_input)  #debug
+            print(f'the size of the input is : {x.shape}')  #debug
             grad = self.transmittion.send_data(prediction_input , l , status='train')
             self.network.train_one_batch(prediction_input , grad.clone())
         return True
@@ -86,6 +86,7 @@ class HTTPS(nn.Module) :
 
 
         
+
 
 
 
