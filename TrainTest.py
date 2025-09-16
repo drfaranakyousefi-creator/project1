@@ -22,12 +22,13 @@ class HTTPS(nn.Module) :
         self.transmittion = Transmitter(server_url , device)
         self.batch_size = batch_size 
         self.loss_fn = nn.MSELoss()
-
+        print('the class HTTPS is created') 
     def fit(self , epochs ): 
         history = {
             'loss_train' : [] , 
             'loss_test'  : []
         }
+        print('the class HTTPS starts to fit')
         for epoch in range(epochs) : 
             self.train_one_epoch()
             loss_train , loss_test = self.evaluate_one_epoch()
@@ -43,6 +44,7 @@ class HTTPS(nn.Module) :
 
     def train_one_epoch(self) :
         for x , l in self.data.load_train(batch_size = self.batch_size) :  
+            print('the class want to train one epoch')
             prediction_input   = self.network(x.to(self.device), train_decoder= True)
             grad = self.transmittion.send_data(prediction_input , l , status='train')
             self.network.train_one_batch(prediction_input , grad.clone())
@@ -80,3 +82,4 @@ class HTTPS(nn.Module) :
 
 
         
+
