@@ -1,8 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-torch.autograd.set_detect_anomaly(True)
-print('hello world')
 
 class encoder(nn.Module) : 
     def __init__(self , w ) : 
@@ -97,6 +95,8 @@ class client_network(nn.Module):
         self.sparse_net = sparse(n_features_input)
         self.loss_fn = nn.MSELoss()
         self.optimizer = optim.Adam(self.parameters() , lr=lr)
+        torch.autograd.set_detect_anomaly(True)
+        print('hello world')
     def forward(self, x, train_decoder= False):
         # x  : (batch , 2 , w , N)
         sparse_inp =x[: , 0 , : , :]
@@ -112,5 +112,6 @@ class client_network(nn.Module):
         prediction_inp.backward(grad)
         self.optimizer.step()
         self.optimizer.zero_grad()
+
 
 
