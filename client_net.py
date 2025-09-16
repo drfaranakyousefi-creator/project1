@@ -58,9 +58,7 @@ class Multi_autoEncoder(nn.Module):
         encoder_output = torch.concat(encoder_output , dim=1) #(batch , N )
         decoder_output = torch.stack(decoder_output , dim=2) #(batch , w , N )
         return encoder_output  , decoder_output 
-    def train_one_sample(self ,x, decoder_output ) : 
-        loss = self.loss_fn(x  , decoder_output)
-        loss.backward(retain_graph=True)
+
 
 
 # ____sparse NN_____ 
@@ -92,21 +90,21 @@ class client_network(nn.Module):
         super(client_network, self).__init__()
         self.MultiAutoEncoder = Multi_autoEncoder(w , n_features_input)
         self.sparse_net = sparse(n_features_input)
-        self.loss_fn = nn.MSELoss()
+        self.loss_fn = nn.L1Loss()
         self.optimizer = optim.Adam(self.parameters() , lr=lr)
-        print('hi')
-    def forward(self, x, train_decoder= False):
+    def forward(self, x):
         # x  : (batch , 2 , w , N)
         sparse_inp = x[:, 0, :, :].clone()
         dense_inp  = x[:, 1, :, :].clone()
         sparse_out = self.sparse_net(sparse_inp) #(B , w)
-        dense_encoder_out , dennse_decoder_out = self.MultiAutoEncoder(dense_inp)
+        dense_encoder_out , dense_decoder_out = self.MultiAutoEncoder(dense_inp)
         prediction_inp = torch.concat([sparse_out,dense_encoder_out ] , dim=1) # (B , W + N)
-        if  train_decoder : 
-            self.MultiAutoEncoder.train_one_sample(dense_inp , dennse_decoder_out  , self.optimizer)
-        return prediction_inp
-    def train_one_batch(self, prediction_inp , grad ) : 
-        prediction_inp.backward(grad)
+        return prediction_inp , dense_decoder_out  , dense_inp
+
+    def train_one_batch(self, prediction_inp,dense_decoder_out  , dense_inp , grad ) :
+        loss = self.loss_fn(dense_decoder_out,dense_inp ) 
+        this_result_should_be_deleted =prediction_inp.backward(grad)
+        loss.backward()
+        print(this_result_should_be_deleted)
         self.optimizer.step()
         self.optimizer.zero_grad()
-
