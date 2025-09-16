@@ -58,11 +58,9 @@ class Multi_autoEncoder(nn.Module):
         encoder_output = torch.concat(encoder_output , dim=1) #(batch , N )
         decoder_output = torch.stack(decoder_output , dim=2) #(batch , w , N )
         return encoder_output  , decoder_output 
-    def train_one_sample(self ,x, decoder_output , optimizer) : 
-        optimizer.zero_grad()
+    def train_one_sample(self ,x, decoder_output ) : 
         loss = self.loss_fn(x  , decoder_output)
         loss.backward(retain_graph=True)
-        optimizer.step()
 
 
 # ____sparse NN_____ 
@@ -108,7 +106,6 @@ class client_network(nn.Module):
             self.MultiAutoEncoder.train_one_sample(dense_inp , dennse_decoder_out  , self.optimizer)
         return prediction_inp
     def train_one_batch(self, prediction_inp , grad ) : 
-        self.optimizer.zero_grad()
         prediction_inp.backward(grad)
         self.optimizer.step()
-
+        self.optimizer.zero_grad()
