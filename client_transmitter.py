@@ -8,6 +8,13 @@ class Transmitter :
         self.server_url = server_url #" https://d5e33cbc658b.ngrok-free.app/is_even"
         self.device = device
     def send_data(self , x , label ,  status  ): #status if is train or test 
+        print("Type of x:", type(x))
+        if isinstance(x, tuple):
+            for i, t in enumerate(x):
+                print(f"x[{i}] shape:", t.shape if hasattr(t, "shape") else type(t))
+        else:
+            print("x shape:", x.shape)
+
         x_copy = x.detach().cpu().tolist()
         l= label.detach().cpu().tolist()
         if status == 'train' : 
@@ -32,4 +39,5 @@ class Transmitter :
         elif status == 'test' :
             prediction = torch.tensor(result['prediction']).to(self.device)
             return  prediction
+
 
