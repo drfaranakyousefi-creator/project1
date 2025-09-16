@@ -44,7 +44,7 @@ class HTTPS(nn.Module) :
 
     def train_one_epoch(self) :
         for x , l in self.data.load_train(batch_size = self.batch_size) :  
-            print('the class want to train one epoch')
+            print('the class want to train one epoch ths is the secound time ')
             prediction_input   = self.network(x.to(self.device), train_decoder= True)
             print(predicion_input)
             grad = self.transmittion.send_data(prediction_input , l , status='train')
@@ -83,5 +83,6 @@ class HTTPS(nn.Module) :
 
 
         
+
 
 
