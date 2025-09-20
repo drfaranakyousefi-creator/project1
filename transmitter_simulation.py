@@ -24,7 +24,7 @@ class Transmitter :
                 'status' : status
             }
 
-        return json.dump(data)
+        return json.dumps(data)
     def send_data(self , x , label ,  status) : 
         # simulation the transfering data from client to server
         data_transfer_to_server = self.data_to_json(x , label ,  status)
