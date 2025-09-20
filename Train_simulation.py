@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np 
 
 class HTTPS(nn.Module) : 
-    def __init__(self , w , dataset_name,batch_size , server_url , target ) -> None:
+    def __init__(self , w , dataset_name,batch_size , server_url , target , lr) -> None:
         super().__init__()
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.device = device
@@ -15,7 +15,7 @@ class HTTPS(nn.Module) :
             self.N = 4
         else:
             self.N =5
-        self.network = client_network(w , self.N ,lr=0.01).to(device)
+        self.network = client_network(w , self.N ,lr=lr).to(device)
         chartevents_path = "/content/drive/MyDrive/split_learning/CHARTEVENTS.csv"
         df_chartevents = pd.read_csv(chartevents_path)
         self.data = data_preparing(df_chartevents , dataset_name , w , test_size = 0.2 , target = target )
@@ -89,6 +89,7 @@ class HTTPS(nn.Module) :
             number += a 
         loss = loss / number
         return loss 
+
 
 
 
