@@ -5,8 +5,12 @@ import json
 
 
 class Transmitter : 
-    def __init__(self , server_url, device ) :      
-        self.model = prediction_net(w=3, n_features_input=5, lr=0.01)
+    def __init__(self , server_url, dataset_name, device ) :   
+        if dataset_name == 'metavision' : 
+            N = 4
+        else : 
+            N = 5    
+        self.model = prediction_net(w=3, n_features_input=N, lr=0.01)
         self.device = device 
     def data_to_json(self ,  x , label ,  status)  : # x and the labels are both tensors
         x_copy = x.detach().cpu().tolist()
@@ -43,7 +47,5 @@ class Transmitter :
         elif status == 'test' :
             prediction = torch.tensor(data_recive_in_client['prediction']).to(self.device)
             return  prediction
-
-
 
 
