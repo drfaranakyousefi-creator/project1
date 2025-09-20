@@ -81,7 +81,7 @@ class HTTPS(nn.Module) :
     def compute_autoEnccoder_loss(self , auto_endocer , i ) : 
         loss =0
         number = 0  
-        for x , _ in self.data.load_train : 
+        for x , _ in self.data.load_train() : 
             a = x.shape[0]
             inp = x[: , 1 ,: ,i]
             _ , decoder_out  = auto_endocer(inp)
@@ -89,6 +89,7 @@ class HTTPS(nn.Module) :
             number += a 
         loss = loss / number
         return loss 
+
 
 
 
