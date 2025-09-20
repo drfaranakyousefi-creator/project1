@@ -28,7 +28,7 @@ def filter_noisy_data(x , dataset_name):
     filtered_df = x[x['itemid'].isin(item_id[dataset_name])].copy()
     return filtered_df
 
-def extract_data_from_person(dataframe , window_lengh , dataset_name ) : 
+def extract_data_from_person(dataframe , window_lengh , dataset_name , target) : 
     sparse_data =[] 
     dense_data  =[] 
     label =[]
@@ -53,28 +53,53 @@ def extract_data_from_person(dataframe , window_lengh , dataset_name ) :
     #data _order for metavision : (heart rate , respiratory rate , Non-invasive BP Mean , Arterial BP Mean)
     #data order for 'carevue' is (heart rate, respiratory rate, arterial BP mean, NBP mean, temperature)
 
-        if (item_id == 646) |  (item_id==220277) :    # Target 
-            sparse_data.append(torch.stack(W_sparse , dim=0))
-            dense_data.append(torch.tensor(W_dense).T)
-            label.append(torch.tensor(value))
+        if (item_id == 646) |  (item_id==220277) :  # spo2
+            if target == 'spO2' :   
+                sparse_data.append(torch.stack(W_sparse , dim=0))
+                dense_data.append(torch.tensor(W_dense).T)
+                label.append(torch.tensor(value))
+            elif target == 'BP'  : 
+                a = torch.zeros(N )
+                a[ 0] = torch.tensor(value)
+                W_sparse.append(a)
+                W_sparse.pop(0)
+                W_dense[0].append(value)
+                W_dense[0].pop(0)
+            elif target == 'RR' : 
+                a = torch.zeros( N )
+                a[ 1] = torch.tensor(value)
+                W_sparse.append(a)
+                W_sparse.pop(0) 
+                W_dense[1].append(value)
+                W_dense[1].pop(0)   
 
-        elif (item_id == 211) |  (item_id==220045) : # common
-            a = torch.zeros(N )
-            a[ 0] = torch.tensor(value)
-            W_sparse.append(a)
-            W_sparse.pop(0)
-            W_dense[0].append(value)
-            W_dense[0].pop(0)
+        elif (item_id==52) | (item_id == 220052)  :
+            if target == 'BP' : 
+                sparse_data.append(torch.stack(W_sparse , dim=0))
+                dense_data.append(torch.tensor(W_dense).T)
+                label.append(torch.tensor(value))
+            else : 
+                a = torch.zeros(N )
+                a[ 0] = torch.tensor(value)
+                W_sparse.append(a)
+                W_sparse.pop(0)
+                W_dense[0].append(value)
+                W_dense[0].pop(0)
 
-        elif(item_id==618) | (item_id == 220210) : # common
-            a = torch.zeros( N )
-            a[ 1] = torch.tensor(value)
-            W_sparse.append(a)
-            W_sparse.pop(0) 
-            W_dense[1].append(value)
-            W_dense[1].pop(0)      
+        elif(item_id==618) | (item_id == 220210) :#RR
+            if target == 'RR' : 
+                sparse_data.append(torch.stack(W_sparse , dim=0))
+                dense_data.append(torch.tensor(W_dense).T)
+                label.append(torch.tensor(value))
+            else : 
+                a = torch.zeros( N )
+                a[ 1] = torch.tensor(value)
+                W_sparse.append(a)
+                W_sparse.pop(0) 
+                W_dense[1].append(value)
+                W_dense[1].pop(0)      
 
-        elif (item_id==52) | (item_id == 220052):   # common
+        elif (item_id == 211) |  (item_id==220045) :   
             a = torch.zeros(N )
             a[2] = torch.tensor(value)
             W_sparse.append(a)
@@ -122,14 +147,14 @@ def extract_data_from_person(dataframe , window_lengh , dataset_name ) :
 
   
 
-def extract_data(dataset_name , df_chartevents , w ) : 
+def extract_data(dataset_name , df_chartevents , w ,  target ) : 
     totol_subject_ids  = df_chartevents['subject_id'].unique()
     all_user_data  = [] 
     all_labels = [] 
     for subject_id in totol_subject_ids : 
         subject_data = df_chartevents[df_chartevents['subject_id'] == subject_id]
         filtered_df = filter_noisy_data( subject_data, dataset_name)
-        data , label = extract_data_from_person(filtered_df  , w , dataset_name )
+        data , label = extract_data_from_person(filtered_df  , w , dataset_name , target )
         if label != None : 
             all_labels.append(label)
             all_user_data.append(data)
@@ -142,8 +167,8 @@ def extract_data(dataset_name , df_chartevents , w ) :
 
 
 class data_preparing : 
-    def __init__(self ,data_frame , dataset_name , w , test_size ) :     
-        self.data , self.label = extract_data(dataset_name , data_frame , w )
+    def __init__(self ,data_frame , dataset_name , w , test_size , target  ) :  #target can be spo2 or BP or RR:raspiratory rate  
+        self.data , self.label = extract_data(dataset_name , data_frame , w , target)
         self.test_size = test_size
     def load_test(self , batch_size ) : 
         start = int((1-self.test_size)*self.label.shape[0])
