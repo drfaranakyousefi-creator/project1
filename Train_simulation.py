@@ -12,17 +12,17 @@ class HTTPS(nn.Module) :
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.device = device
         if dataset_name == 'metavision' : 
-            N = 4
+            self.N = 4
         else:
-            N =5
-        self.network = client_network(w , N ,lr=0.01).to(device)
+            self.N =5
+        self.network = client_network(w , self.N ,lr=0.01).to(device)
         chartevents_path = "/content/drive/MyDrive/split_learning/CHARTEVENTS.csv"
         df_chartevents = pd.read_csv(chartevents_path)
         self.data = data_preparing(df_chartevents , dataset_name , w , test_size = 0.2 )
         self.transmittion = Transmitter(server_url , device)
         self.batch_size = batch_size 
         self.loss_fn = nn.MSELoss()
-
+        self.L1Loss = nn.L1Loss()
     def fit(self , epochs ): 
         history = {
             'loss_train' : [] , 
@@ -66,4 +66,32 @@ class HTTPS(nn.Module) :
             loss_test +=x.shape[0] * self.loss_fn(prediction.to(self.device) , l )
             number += x.shape[0]
         loss_test = loss_test/number 
-        return loss_train , loss_test       
+        return loss_train , loss_test     
+    def get_knowledge(self , HTTPS_object ) : 
+        all_auto_encoders  = HTTPS_object.network.MultiAutoEncoder.autoEncoders
+        for i in range(self.N) : 
+            l1Loss = [] 
+            for auto_endocer in  all_auto_encoders : 
+                l1Loss.append(self.compute_autoEnccoder_loss(auto_endocer , i ))
+            min_idx = torch.argmin(torch.stack(l1Loss))
+            print(f'the feature {i} chooses the autocoder {min_idx}')
+            weights = all_auto_encoders[min_idx].state_dict()
+            self.network.MultiAutoEncoder.autoEncoders[i].load_state_dict(weights)
+            
+    def compute_autoEnccoder_loss(self , auto_endocer , i ) : 
+        loss =0
+        number = 0  
+        for x , _ in self.data.load_train : 
+            a = x.shape[0]
+            inp = x[: , 1 ,: ,i]
+            _ , decoder_out  = auto_endocer(inp)
+            loss += a * self.L1Loss(inp,decoder_out)
+            number += a 
+        loss = loss / number
+        return loss 
+
+
+
+
+
+
