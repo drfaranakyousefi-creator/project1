@@ -167,7 +167,7 @@ def extract_data(dataset_name , df_chartevents , w ,  target ) :
 
 
 class data_preparing : 
-    def __init__(self ,data_frame , dataset_name , w , test_size , target  ) :  #target can be spo2 or BP or RR:raspiratory rate  
+    def __init__(self ,data_frame , dataset_name , w , test_size , target ='spO2' ) :  #target can be spo2 or BP or RR:raspiratory rate  
         self.data , self.label = extract_data(dataset_name , data_frame , w , target)
         self.test_size = test_size
     def load_test(self , batch_size ) : 
@@ -180,4 +180,5 @@ class data_preparing :
         dataset = TensorDataset(self.data[:end ,: ,  : , : ] , self.label[:end])
         train_loader = DataLoader(dataset , batch_size=batch_size , shuffle= True)
         return train_loader    
+
 
