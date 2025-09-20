@@ -9,19 +9,19 @@ import math
 def filter_noisy_data(x , dataset_name): 
     item_id = {
         'metavision' : [  
-                211, 220045,  # Heart Rate
-                618, 220210,  # Respiratory Rate
+                220045,  # Heart Rate
+                220210,  # Respiratory Rate
                 220179, 220180,  # Non-invasive BP Mean
-                52, 220052,  # Arterial BP Mean
-                646, 220277   # SpO2 (هدف پیش‌بینی) 
+                220052,  # Arterial BP Mean
+                220277   # SpO2 (هدف پیش‌بینی) 
         ],
         'carevue' : [
-                211, 220045,   # ضربان قلب
-                618, 220210,   # نرخ تنفس
-                52, 220052,   # متوسط فشار خون شریانی
+                211,   # ضربان قلب
+                618,   # نرخ تنفس
+                52,    # متوسط فشار خون شریانی
                 456,          # متوسط فشار خون NBP
                 676, 678,     # دما
-                646, 220277    # SpO2 (هدف پیش‌بینی)
+                646   # SpO2 (هدف پیش‌بینی)
         ]
     }
 
@@ -82,7 +82,7 @@ def extract_data_from_person(dataframe , window_lengh , dataset_name ) :
             W_dense[2].append(value)
             W_dense[2].pop(0)
 
-        elif ((item_id == 220179 ) |  (item_id==220180)) & (N == 4):#metavision
+        elif ((item_id == 220179 ) |  (item_id==220180)):#metavision
             a = torch.zeros( N )
             a[3] = torch.tensor(value)
             W_sparse.append(a)
@@ -90,7 +90,7 @@ def extract_data_from_person(dataframe , window_lengh , dataset_name ) :
             W_dense[3].append(value)
             W_dense[3].pop(0)
 
-        elif(item_id==456) & (N == 5) :  
+        elif(item_id==456)  :  
             a = torch.zeros( N )
             a[ 3] = torch.tensor(value)
             W_sparse.append(a)
@@ -98,7 +98,7 @@ def extract_data_from_person(dataframe , window_lengh , dataset_name ) :
             W_dense[3].append(value)
             W_dense[3].pop(0)  
 
-        elif ((item_id==678 ) | (item_id == 676)) & (N == 5) : 
+        elif ((item_id==678 ) | (item_id == 676))  : 
             a = torch.zeros(N )
             a[ 4] = torch.tensor(value)
             W_sparse.append(a)
@@ -144,7 +144,6 @@ def extract_data(dataset_name , df_chartevents , w ) :
 class data_preparing : 
     def __init__(self ,data_frame , dataset_name , w , test_size ) :     
         self.data , self.label = extract_data(dataset_name , data_frame , w )
-        print(f'the size of the total data is {self.data.shape}')
         self.test_size = test_size
     def load_test(self , batch_size ) : 
         start = int((1-self.test_size)*self.label.shape[0])
@@ -156,10 +155,4 @@ class data_preparing :
         dataset = TensorDataset(self.data[:end ,: ,  : , : ] , self.label[:end])
         train_loader = DataLoader(dataset , batch_size=batch_size , shuffle= True)
         return train_loader    
-
-
-
-
-
-
 
