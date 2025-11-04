@@ -1,52 +1,63 @@
-import torch 
+import torch
 from server_net import prediction_net
-import json 
+import json
 
-
-
-class Transmitter : 
-    def __init__(self ,w ,  server_url, dataset_name, device ) :   
-        if dataset_name == 'metavision' : 
+# Class to simulate data transfer between client and server
+class Transmitter:
+    def __init__(self, w, server_url, dataset_name, device):
+        # Number of features depends on dataset type
+        if dataset_name == 'metavision':
             N = 4
-        else : 
-            N = 5    
+        else:
+            N = 5
+        # Initialize server-side prediction model
         self.model = prediction_net(w, n_features_input=N, lr=0.01)
-        self.device = device 
-    def data_to_json(self ,  x , label ,  status)  : # x and the labels are both tensors
+        self.device = device
+
+    # Convert tensors to JSON for simulation of sending data
+    def data_to_json(self, x, label, status):  # x and label are both tensors
         x_copy = x.detach().cpu().tolist()
         label_copy = label.detach().cpu().tolist()
-        if status == 'train' : 
+        if status == 'train':
+            # Include labels in training mode
             data = {
-                'prediction_iput':x_copy,
-                'label': label_copy ,
-                'status' : status
+                'prediction_iput': x_copy,
+                'label': label_copy,
+                'status': status
             }
-        elif status == 'test' : 
+        elif status == 'test':
+            # Do not include labels in test mode
             data = {
-                'prediction_iput':x_copy,
-                'label': [] , 
-                'status' : status
+                'prediction_iput': x_copy,
+                'label': [],
+                'status': status
             }
 
+        # Return JSON string
         return json.dumps(data)
-    def send_data(self , x , label ,  status) : 
-        # simulation the transfering data from client to server
-        data_transfer_to_server = self.data_to_json(x , label ,  status)
+
+    # Simulate sending data to server and receiving result back
+    def send_data(self, x, label, status):
+        # Convert client data to JSON
+        data_transfer_to_server = self.data_to_json(x, label, status)
+        # Server receives JSON and parses it
         server_recieves_data = json.loads(data_transfer_to_server)
-        #processing at the server 
+
+        # Extract data for server processing
         combined_embedded = server_recieves_data['prediction_iput']
         label = server_recieves_data['label']
         status = server_recieves_data['status']
+
+        # Server processes data with its model
         result = self.model(combined_embedded, label, status)
-        #simulation of data getting back to the client 
+
+        # Simulate sending result back to client
         data_back_to_client = json.dumps(result)
         data_recive_in_client = json.loads(data_back_to_client)
-        if status == 'train' : # result = {'grad' :  }
+
+        if status == 'train':  # Return gradient in training mode
             grad = data_recive_in_client['grad']
             return torch.tensor(grad).to(self.device)
-        elif status == 'test' :
+        elif status == 'test':  # Return predictions in test mode
             prediction = torch.tensor(data_recive_in_client['prediction']).to(self.device)
-            return  prediction
-
-
-
+            return prediction
